@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   try {
     const { expediente, juzgado, demandante, demandado, tipoEscrito, instrucciones } = await req.json();
 
-    // Estructura formal de un escrito judicial en Perú
     const doc = new Document({
       sections: [{
         properties: {},
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
           }),
           new Paragraph({ text: "" }),
           new Paragraph({
-            alignment: AlignmentType.JUSTIFY,
+            alignment: AlignmentType.BOTH,
             children: [
               new TextRun({ 
                 text: `[NOMBRE DEL ABOGADO/PARTE], identificado con D.N.I. N° [________], con Registro C.A.L. N° [____], con domicilio procesal en la casilla electrónica SINOE N° [______], en los seguidos por ${demandante || '[DEMANDANTE]'} contra ${demandado || '[DEMANDADO]'}, ante usted respetuosamente me presento y digo:`,
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
             children: [new TextRun({ text: "I. PETITORIO:", bold: true, size: 22 })],
           }),
           new Paragraph({
-            alignment: AlignmentType.JUSTIFY,
+            alignment: AlignmentType.BOTH,
             children: [
               new TextRun({ 
                 text: `Que, dentro del plazo de ley, acudo a su despacho con la finalidad de dar debido cumplimiento a lo ordenado en la última resolución judicial, manifestando que: ${instrucciones || 'Se adjunta el arancel judicial respectivo por derecho de notificación y se subsana la omisión advertida.'}`,
@@ -56,7 +55,7 @@ export async function POST(req: Request) {
             children: [new TextRun({ text: "II. FUNDAMENTOS DE DERECHO:", bold: true, size: 22 })],
           }),
           new Paragraph({
-            alignment: AlignmentType.JUSTIFY,
+            alignment: AlignmentType.BOTH,
             children: [
               new TextRun({ 
                 text: "Amparo el presente escrito en lo establecido por el Artículo 139° inciso 3 de la Constitución Política del Perú y los artículos aplicables del Código Procesal Civil.",
@@ -78,11 +77,12 @@ export async function POST(req: Request) {
     });
 
     const buffer = await Packer.toBuffer(doc);
+    const uint8Array = new Uint8Array(buffer);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'Content-Disposition': `attachment; filename=Escrito_${expediente}.docx`,
+        'Content-Disposition': `attachment; filename=Escrito_${expediente || 'Judicial'}.docx`,
       },
     });
   } catch (error: any) {
