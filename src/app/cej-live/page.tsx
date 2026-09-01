@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Scale, ExternalLink, ShieldCheck, Zap, Download, Layers } from 'lucide-react';
+import { ArrowLeft, Scale, ExternalLink, ShieldCheck, Zap, Chrome } from 'lucide-react';
 
 export default function CEJLivePage() {
   const router = useRouter();
@@ -19,20 +19,20 @@ export default function CEJLivePage() {
     },
     {
       title: "SINOE - Casilla Electrónica Judicial",
-      desc: "Bandeja oficial de notificaciones judiciales y anexos digitales con firma electrónica.",
-      url: "https://sinoe.pj.gob.pe/",
+      desc: "Bandeja oficial de notificaciones judiciales y resoluciones con firma digital.",
+      url: "https://casillas.pj.gob.pe/sinoe/login.xhtml",
       badge: "IMPORTACIÓN MASIVA",
       badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
       btnText: "Abrir Casilla SINOE",
       btnColor: "bg-emerald-600 hover:bg-emerald-500 text-white"
     },
     {
-      title: "CEJ - Corte Suprema de la República",
-      desc: "Seguimiento de Recursos de Casación Civil, Laboral, Constitucional y Penal.",
-      url: "https://cej.pj.gob.pe/cej/forms/busquedaformSuprema.html",
-      badge: "CASACIONES",
+      title: "Mesa de Partes Electrónica (MPE)",
+      desc: "Ingreso de demandas, escritos y recursos judiciales de forma digital.",
+      url: "https://casillas.pj.gob.pe/sinoe/login.xhtml",
+      badge: "MESA DE PARTES",
       badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-      btnText: "Abrir Corte Suprema",
+      btnText: "Abrir MPE Digital",
       btnColor: "bg-slate-800 hover:bg-slate-700 text-slate-200"
     }
   ];
@@ -52,7 +52,7 @@ export default function CEJLivePage() {
           
           <div className="flex items-center gap-2 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-xl font-medium">
             <ShieldCheck className="w-4 h-4" />
-            <span>Extensión JUDIBOT Conectada</span>
+            <span>Extensión JUDIBOT Activa</span>
           </div>
         </div>
 
@@ -63,6 +63,15 @@ export default function CEJLivePage() {
           <p className="text-xs text-slate-400 mt-1">
             Abre el portal deseado con 1 clic. La extensión de JUDIBOT detectará tus expedientes automáticamente.
           </p>
+        </div>
+
+        {/* Banner de Google Chrome */}
+        <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-4 flex items-start gap-3 text-xs">
+          <Chrome className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+          <div className="text-slate-300 leading-relaxed">
+            <strong className="text-white block mb-0.5">Requisito para la sincronización automática:</strong>
+            Para que la extensión oficial de JUDIBOT detecte y sincronice tus expedientes con 1 clic, asegúrate de utilizar <strong>Google Chrome, Microsoft Edge o Brave</strong> con la extensión instalada.
+          </div>
         </div>
 
         {/* Tarjetas de Portales Judiciales */}
@@ -97,26 +106,26 @@ export default function CEJLivePage() {
           ))}
         </div>
 
-        {/* Guía Rápida de Sincronización */}
+        {/* Guía Rápida */}
         <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 mt-8">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-amber-400" /> ¿Cómo funciona la sincronización con JUDIBOT?
+            <Zap className="w-4 h-4 text-amber-400" /> ¿Cómo funciona la sincronización en 3 pasos?
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
               <span className="text-indigo-400 font-bold block mb-1">Paso 1</span>
-              <p className="text-slate-300">Haz clic en el botón del portal oficial arriba (CEJ o SINOE).</p>
+              <p className="text-slate-300">Haz clic en cualquiera de los botones de arriba para abrir el portal oficial del PJ.</p>
             </div>
 
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
               <span className="text-indigo-400 font-bold block mb-1">Paso 2</span>
-              <p className="text-slate-300">Valida tu DNI o inicia sesión en tu casilla normalmente.</p>
+              <p className="text-slate-300">Valida tu DNI en el CEJ o inicia sesión con tu usuario en la Casilla SINOE.</p>
             </div>
 
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
               <span className="text-emerald-400 font-bold block mb-1">Paso 3</span>
-              <p className="text-slate-300">Presiona el botón flotante verde de JUDIBOT para absorber toda tu carga.</p>
+              <p className="text-slate-300">Presiona el botón flotante verde de JUDIBOT para absorber todos tus casos de golpe.</p>
             </div>
           </div>
         </div>
