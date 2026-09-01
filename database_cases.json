@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1788211689017",
+    "expediente_numero": "00009-2026-0-0101-JR-CI-01",
+    "distrito_judicial": "AMAZONAS",
+    "juzgado": "Juzgado Mixto de Jumbilla - Bongará (Amazonas)",
+    "materia": "CIVIL - Prescripción Adquisitiva de Dominio",
+    "status": "ACTIVE",
+    "created_at": "2026-08-31T21:28:09.017Z",
+    "resoluciones": [
+      {
+        "nroResolucion": "Resolución N° 01 (Auto Admisorio)",
+        "fechaResolucion": "2026-08-31",
+        "acto": "AUTO QUE ADMITE A TRÁMITE LA DEMANDA",
+        "sumilla": "Se admite a trámite la demanda de prescripción adquisitiva."
+      }
+    ],
+    "ultimo_movimiento": "2026-08-31T22:28:31.548Z"
+  },
+  {
+    "id": "1788204228921",
+    "expediente_numero": "344365",
+    "distrito_judicial": "LIMA",
+    "juzgado": "1° Juzgado Especializado en lo Civil - Lima",
+    "materia": "CIVIL - Obligación de Dar Suma de Dinero",
+    "status": "ACTIVE",
+    "created_at": "2026-08-31T19:23:48.921Z"
+  }
+]

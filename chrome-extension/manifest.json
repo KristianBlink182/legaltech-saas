@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "IurisBot - Monitoreo Judicial CEJ & SINOE",
+  "version": "1.0.2",
+  "description": "Importa expedientes del Poder Judicial y SINOE a IurisBot con 1 solo clic.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "https://cej.pj.gob.pe/*",
+    "https://sinoe.pj.gob.pe/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://cej.pj.gob.pe/*", "https://sinoe.pj.gob.pe/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
