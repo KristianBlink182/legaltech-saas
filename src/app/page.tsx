@@ -5,7 +5,6 @@ import { Case } from '@/types/database';
 import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
-import { NewCaseModal } from '@/components/NewCaseModal';
 import { getCases } from '@/app/actions';
 
 const DEFAULT_CASES: Case[] = [
@@ -32,7 +31,6 @@ const DEFAULT_CASES: Case[] = [
 export default function Dashboard() {
   const [cases, setCases] = useState<Case[]>(DEFAULT_CASES);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchCases = async () => {
     try {
@@ -53,7 +51,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-      <Navbar onOpenModal={() => setIsModalOpen(true)} onRefresh={fetchCases} />
+      <Navbar onRefresh={fetchCases} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <StatsGrid totalCases={cases.length} pendingDeadlines={1} />
@@ -67,12 +65,6 @@ export default function Dashboard() {
 
         <CaseList cases={cases} loading={loading} />
       </main>
-
-      <NewCaseModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchCases}
-      />
     </div>
   );
 }

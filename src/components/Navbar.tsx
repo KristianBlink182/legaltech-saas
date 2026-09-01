@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Scale, MessageSquare, Calendar, Shield, Sparkles, Building, Users, CreditCard, Award, Menu, X, FileUp } from 'lucide-react';
+import { Scale, Calendar, Sparkles, Search, FileUp, Shield, Menu, X } from 'lucide-react';
 import { WhatsAppSettingsModal } from '@/components/WhatsAppSettingsModal';
 import { NewFiscalCaseModal } from '@/components/NewFiscalCaseModal';
 import { UploadCedulaModal } from '@/components/UploadCedulaModal';
+import { UserProfileMenu } from '@/components/UserProfileMenu';
 
 interface NavbarProps {
-  onOpenModal?: () => void;
   onRefresh?: () => void;
 }
 
@@ -20,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onRefresh }) => {
   return (
     <>
       <header className="border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Logo JUDIBOT */}
           <div 
@@ -35,85 +35,67 @@ export const Navbar: React.FC<NavbarProps> = ({ onRefresh }) => {
                 <span className="font-black text-lg text-white tracking-tight">JUDIBOT</span>
                 <span className="bg-indigo-500/10 text-indigo-400 text-[10px] px-1.5 py-0.2 rounded-md border border-indigo-500/20 font-bold">PRO</span>
               </div>
-              <p className="text-[10px] text-slate-400 hidden xl:block">Inteligencia Judicial y Fiscal del Perú</p>
+              <p className="text-[10px] text-slate-400 hidden xl:block">Inteligencia Judicial y Fiscal de Perú</p>
             </div>
           </div>
 
-          {/* Menú Desktop */}
-          <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-end">
+          {/* Menú Central Limpio (Solo 4 herramientas clave) */}
+          <div className="hidden md:flex items-center gap-2">
             
-            {/* BOTÓN 1: ABRIR PORTAL CEJ / SINOE CON EXTENSIÓN */}
+            {/* CEJ Oficial en Vivo */}
             <button 
               onClick={() => router.push('/cej-live')}
               className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/25 transition font-bold"
             >
-              <Scale className="w-4 h-4 text-emerald-400" />
+              <Scale className="w-4 h-4" />
               <span>CEJ Oficial en Vivo</span>
             </button>
 
-            {/* BOTÓN 2: SUBIR CÉDULA / NOTIFICACIÓN PDF CON IA */}
+            {/* Cargar Cédula PDF */}
             <button 
               onClick={() => setIsUploadOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition font-bold shadow-lg shadow-indigo-600/30 active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition font-semibold shadow-lg shadow-indigo-600/30 active:scale-95"
             >
               <FileUp className="w-4 h-4" />
               <span>+ Cargar Cédula PDF</span>
             </button>
 
-            <button onClick={() => router.push('/drafting')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition font-medium">
-              <Sparkles className="w-3.5 h-3.5" />
+            {/* Redactor IA */}
+            <button 
+              onClick={() => router.push('/drafting')}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 hover:text-white rounded-xl transition font-medium"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
               <span>Redactor IA</span>
             </button>
 
-            <button onClick={() => router.push('/calendar')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition font-medium">
+            {/* Calendario Judicial */}
+            <button 
+              onClick={() => router.push('/calendar')}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 hover:text-white rounded-xl transition font-medium"
+            >
               <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Calendario</span>
+              <span>Agenda Judicial</span>
             </button>
 
-            <button onClick={() => router.push('/sunarp')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl hover:bg-amber-500/20 transition font-medium">
-              <Building className="w-3.5 h-3.5" />
-              <span>SUNARP</span>
-            </button>
-
-            <button onClick={() => router.push('/indecopi')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-xl hover:bg-violet-500/20 transition font-medium">
-              <Award className="w-3.5 h-3.5" />
-              <span>INDECOPI</span>
-            </button>
-
-            <button onClick={() => router.push('/tasks')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition font-medium">
-              <Users className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Equipo</span>
-            </button>
-
-            <button onClick={() => setIsWhatsAppOpen(true)} className="flex items-center gap-1 px-2.5 py-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition font-medium">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </button>
-
-            <button onClick={() => router.push('/pricing')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl hover:bg-amber-500/20 transition font-medium">
-              <CreditCard className="w-3.5 h-3.5" />
-              <span>Planes</span>
-            </button>
-
-            <button onClick={() => setIsFiscalOpen(true)} className="flex items-center gap-1 px-2.5 py-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl hover:bg-rose-500/20 transition font-medium">
-              <Shield className="w-3.5 h-3.5" />
-              <span>+ Fiscalía</span>
+            {/* Registros SUNARP / INDECOPI Unificados */}
+            <button 
+              onClick={() => router.push('/registros')}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 hover:text-white rounded-xl transition font-medium"
+            >
+              <Search className="w-3.5 h-3.5 text-amber-400" />
+              <span>Registros & Marcas</span>
             </button>
           </div>
 
-          {/* Menú Móvil */}
-          <div className="flex md:hidden items-center gap-1.5">
-            <button 
-              onClick={() => setIsUploadOpen(true)}
-              className="bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1 shadow-md"
-            >
-              <FileUp className="w-3.5 h-3.5" />
-              <span>PDF</span>
-            </button>
+          {/* Menú del Abogado / Perfil a la Derecha */}
+          <div className="flex items-center gap-2">
+            <UserProfileMenu onOpenWhatsApp={() => setIsWhatsAppOpen(true)} />
 
+            {/* Botón Menú Móvil */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="bg-slate-900 border border-slate-800 text-slate-300 p-2 rounded-xl"
+              className="md:hidden bg-slate-900 border border-slate-800 text-slate-300 p-2 rounded-xl"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -134,19 +116,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onRefresh }) => {
               <Sparkles className="w-4 h-4" /> Redactor IA
             </button>
             <button onClick={() => { router.push('/calendar'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300">
-              <Calendar className="w-4 h-4 text-indigo-400" /> Calendario
+              <Calendar className="w-4 h-4 text-indigo-400" /> Agenda Judicial
             </button>
-            <button onClick={() => { router.push('/sunarp'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-amber-400">
-              <Building className="w-4 h-4" /> SUNARP
-            </button>
-            <button onClick={() => { router.push('/indecopi'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-violet-400">
-              <Award className="w-4 h-4" /> INDECOPI
-            </button>
-            <button onClick={() => { router.push('/tasks'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300">
-              <Users className="w-4 h-4 text-indigo-400" /> Tareas Equipo
-            </button>
-            <button onClick={() => { setIsWhatsAppOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400">
-              <MessageSquare className="w-4 h-4" /> WhatsApp
+            <button onClick={() => { router.push('/registros'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-amber-400 col-span-2">
+              <Search className="w-4 h-4" /> Registros SUNARP & INDECOPI
             </button>
             <button onClick={() => { setIsFiscalOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 col-span-2">
               <Shield className="w-4 h-4" /> + Monitorear Carpeta Fiscal (MPFN)
