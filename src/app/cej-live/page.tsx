@@ -27,12 +27,12 @@ export default function CEJLivePage() {
       btnColor: "bg-emerald-600 hover:bg-emerald-500 text-white"
     },
     {
-      title: "Mesa de Partes Electrónica (MPE)",
-      desc: "Ingreso de demandas, escritos y recursos judiciales de forma digital.",
-      url: "https://casillas.pj.gob.pe/sinoe/login.xhtml",
-      badge: "MESA DE PARTES",
+      title: "CEJ - Corte Suprema de la República",
+      desc: "Seguimiento de Recursos de Casación Civil, Laboral, Constitucional y Penal.",
+      url: "https://cej.pj.gob.pe/cej/forms/busquedaform.html",
+      badge: "CASACIONES",
       badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-      btnText: "Abrir MPE Digital",
+      btnText: "Abrir Corte Suprema",
       btnColor: "bg-slate-800 hover:bg-slate-700 text-slate-200"
     }
   ];
