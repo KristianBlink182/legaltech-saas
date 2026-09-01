@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Scale, ExternalLink, ShieldCheck, Zap, Chrome } from 'lucide-react';
+import { ArrowLeft, Scale, ExternalLink, ShieldCheck, Zap, Globe } from 'lucide-react';
 
 export default function CEJLivePage() {
   const router = useRouter();
@@ -65,9 +65,9 @@ export default function CEJLivePage() {
           </p>
         </div>
 
-        {/* Banner de Google Chrome */}
+        {/* Banner de Navegador Compatible */}
         <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-4 flex items-start gap-3 text-xs">
-          <Chrome className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+          <Globe className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
           <div className="text-slate-300 leading-relaxed">
             <strong className="text-white block mb-0.5">Requisito para la sincronización automática:</strong>
             Para que la extensión oficial de JUDIBOT detecte y sincronice tus expedientes con 1 clic, asegúrate de utilizar <strong>Google Chrome, Microsoft Edge o Brave</strong> con la extensión instalada.
