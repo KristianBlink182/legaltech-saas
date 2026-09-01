@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Scale, MessageSquare, Plus, Calendar, Shield, Sparkles, Building, Users, CreditCard, Award, Menu, X } from 'lucide-react';
+import { Scale, MessageSquare, Plus, Calendar, Shield, Sparkles, Building, Users, CreditCard, Award, Menu, X, ExternalLink } from 'lucide-react';
 import { WhatsAppSettingsModal } from '@/components/WhatsAppSettingsModal';
 import { NewFiscalCaseModal } from '@/components/NewFiscalCaseModal';
 
@@ -39,9 +39,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
 
           {/* Menú Desktop (Pantallas Grandes) */}
           <div className="hidden lg:flex items-center gap-2">
-            <button onClick={() => router.push('/tasks')} className="flex items-center gap-1 p-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
-              <Users className="w-4 h-4 text-indigo-400" />
-              <span>Equipo</span>
+            
+            {/* BOTÓN DESTACADO: CEJ OFICIAL EN VIVO */}
+            <button 
+              onClick={() => router.push('/cej-live')}
+              className="flex items-center gap-1.5 p-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/20 transition font-bold"
+            >
+              <Scale className="w-4 h-4 text-emerald-400" />
+              <span>CEJ Oficial en Vivo</span>
             </button>
 
             <button onClick={() => router.push('/drafting')} className="flex items-center gap-1 p-2 text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition">
@@ -49,9 +54,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
               <span>Redactor IA</span>
             </button>
 
-            <button onClick={() => router.push('/indecopi')} className="flex items-center gap-1 p-2 text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-xl hover:bg-violet-500/20 transition">
-              <Award className="w-4 h-4" />
-              <span>INDECOPI</span>
+            <button onClick={() => router.push('/calendar')} className="flex items-center gap-1 p-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
+              <Calendar className="w-4 h-4 text-indigo-400" />
+              <span>Calendario</span>
             </button>
 
             <button onClick={() => router.push('/sunarp')} className="flex items-center gap-1 p-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl hover:bg-amber-500/20 transition">
@@ -59,9 +64,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
               <span>SUNARP</span>
             </button>
 
-            <button onClick={() => router.push('/calendar')} className="flex items-center gap-1 p-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
-              <Calendar className="w-4 h-4 text-indigo-400" />
-              <span>Calendario</span>
+            <button onClick={() => router.push('/indecopi')} className="flex items-center gap-1 p-2 text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-xl hover:bg-violet-500/20 transition">
+              <Award className="w-4 h-4" />
+              <span>INDECOPI</span>
+            </button>
+
+            <button onClick={() => router.push('/tasks')} className="flex items-center gap-1 p-2 text-xs text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition">
+              <Users className="w-4 h-4 text-indigo-400" />
+              <span>Equipo</span>
             </button>
 
             <button onClick={() => setIsWhatsAppOpen(true)} className="flex items-center gap-1 p-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition">
@@ -89,11 +99,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
 
           {/* Botones Móviles (Pantallas Pequeñas) */}
           <div className="flex lg:hidden items-center gap-2">
+            <button 
+              onClick={() => router.push('/cej-live')}
+              className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-2 rounded-xl font-bold flex items-center gap-1"
+            >
+              <Scale className="w-3.5 h-3.5" />
+              <span>CEJ Vivo</span>
+            </button>
+
             {onOpenModal && (
               <button onClick={onOpenModal} className="bg-indigo-600 text-white p-2 rounded-xl">
                 <Plus className="w-4 h-4" />
               </button>
             )}
+
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
               className="bg-slate-900 border border-slate-800 text-slate-300 p-2 rounded-xl"
@@ -107,6 +126,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
         {/* Menú Desplegable Móvil */}
         {isMobileMenuOpen && (
           <div className="lg:hidden mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 gap-2">
+            <button onClick={() => { router.push('/cej-live'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-400 font-bold col-span-2">
+              <Scale className="w-4 h-4" /> ⚖️ Abrir Portal Oficial CEJ en Vivo
+            </button>
             <button onClick={() => { router.push('/drafting'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-indigo-400">
               <Sparkles className="w-4 h-4" /> Redactor IA
             </button>
@@ -128,13 +150,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
             <button onClick={() => { setIsFiscalOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 col-span-2">
               <Shield className="w-4 h-4" /> + Monitorear Carpeta Fiscal (MPFN)
             </button>
-            <button 
-  onClick={() => router.push('/cej-live')} 
-  className="flex items-center gap-1 p-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition"
->
-  <Scale className="w-4 h-4" />
-  <span className="hidden lg:inline font-medium">CEJ Oficial en Vivo</span>
-</button>
           </div>
         )}
       </header>
