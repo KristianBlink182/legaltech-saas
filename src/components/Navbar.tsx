@@ -128,6 +128,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
             <button onClick={() => { setIsFiscalOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 col-span-2">
               <Shield className="w-4 h-4" /> + Monitorear Carpeta Fiscal (MPFN)
             </button>
+            <button 
+  onClick={() => router.push('/cej-live')} 
+  className="flex items-center gap-1 p-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition"
+>
+  <Scale className="w-4 h-4" />
+  <span className="hidden lg:inline font-medium">CEJ Oficial en Vivo</span>
+</button>
           </div>
         )}
       </header>
