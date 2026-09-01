@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Scale, MessageSquare, Plus, Calendar, Shield, Sparkles, Building, Users, CreditCard, Award, Menu, X } from 'lucide-react';
+import { Scale, MessageSquare, Calendar, Shield, Sparkles, Building, Users, CreditCard, Award, Menu, X, FileUp } from 'lucide-react';
 import { WhatsAppSettingsModal } from '@/components/WhatsAppSettingsModal';
 import { NewFiscalCaseModal } from '@/components/NewFiscalCaseModal';
+import { UploadCedulaModal } from '@/components/UploadCedulaModal';
 
 interface NavbarProps {
   onOpenModal?: () => void;
   onRefresh?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onRefresh }) => {
   const router = useRouter();
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isFiscalOpen, setIsFiscalOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -37,16 +39,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
             </div>
           </div>
 
-          {/* Menú de Botones Principales */}
+          {/* Menú Desktop */}
           <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-end">
             
-            {/* BOTÓN CEJ EN VIVO (Siempre visible en pantallas medianas y grandes) */}
+            {/* BOTÓN 1: ABRIR PORTAL CEJ / SINOE CON EXTENSIÓN */}
             <button 
               onClick={() => router.push('/cej-live')}
               className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/25 transition font-bold"
             >
               <Scale className="w-4 h-4 text-emerald-400" />
               <span>CEJ Oficial en Vivo</span>
+            </button>
+
+            {/* BOTÓN 2: SUBIR CÉDULA / NOTIFICACIÓN PDF CON IA */}
+            <button 
+              onClick={() => setIsUploadOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition font-bold shadow-lg shadow-indigo-600/30 active:scale-95"
+            >
+              <FileUp className="w-4 h-4" />
+              <span>+ Cargar Cédula PDF</span>
             </button>
 
             <button onClick={() => router.push('/drafting')} className="flex items-center gap-1 px-2.5 py-2 text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition font-medium">
@@ -88,36 +99,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
               <Shield className="w-3.5 h-3.5" />
               <span>+ Fiscalía</span>
             </button>
-
-            {onOpenModal && (
-              <button onClick={onOpenModal} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg shadow-indigo-600/20 transition active:scale-95">
-                <Plus className="w-4 h-4" />
-                <span>Monitorear CEJ</span>
-              </button>
-            )}
           </div>
 
-          {/* Menú para Móviles */}
+          {/* Menú Móvil */}
           <div className="flex md:hidden items-center gap-1.5">
             <button 
-              onClick={() => router.push('/cej-live')}
-              className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1"
+              onClick={() => setIsUploadOpen(true)}
+              className="bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1 shadow-md"
             >
-              <Scale className="w-3.5 h-3.5" />
-              <span>CEJ</span>
+              <FileUp className="w-3.5 h-3.5" />
+              <span>PDF</span>
             </button>
-
-            {onOpenModal && (
-              <button onClick={onOpenModal} className="bg-indigo-600 text-white p-2 rounded-xl">
-                <Plus className="w-4 h-4" />
-              </button>
-            )}
 
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
               className="bg-slate-900 border border-slate-800 text-slate-300 p-2 rounded-xl"
             >
-              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
@@ -128,6 +126,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
           <div className="md:hidden mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 gap-2">
             <button onClick={() => { router.push('/cej-live'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-xs text-emerald-400 font-bold col-span-2">
               <Scale className="w-4 h-4" /> ⚖️ Abrir Portal Oficial CEJ en Vivo
+            </button>
+            <button onClick={() => { setIsUploadOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-indigo-600 rounded-xl text-xs text-white font-bold col-span-2">
+              <FileUp className="w-4 h-4" /> 📄 Cargar Cédula / Notificación en PDF
             </button>
             <button onClick={() => { router.push('/drafting'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-indigo-400">
               <Sparkles className="w-4 h-4" /> Redactor IA
@@ -156,6 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal, onRefresh }) => {
 
       <WhatsAppSettingsModal isOpen={isWhatsAppOpen} onClose={() => setIsWhatsAppOpen(false)} />
       <NewFiscalCaseModal isOpen={isFiscalOpen} onClose={() => setIsFiscalOpen(false)} onSuccess={() => onRefresh && onRefresh()} />
+      <UploadCedulaModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onSuccess={() => onRefresh && onRefresh()} />
     </>
   );
 };
