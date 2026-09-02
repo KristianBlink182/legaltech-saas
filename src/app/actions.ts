@@ -5,45 +5,24 @@ import path from 'path';
 
 const DB_FILE = path.join(process.cwd(), 'database_cases.json');
 
-const INITIAL_DEMO_CASES = [
-  {
-    id: '1',
-    expediente_numero: '00009-2026-0-0101-JR-CI-01',
-    distrito_judicial: 'AMAZONAS',
-    juzgado: 'Juzgado Mixto de Jumbilla - Bongará (Amazonas)',
-    materia: 'CIVIL - Prescripción Adquisitiva de Dominio',
-    status: 'ACTIVE',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    expediente_numero: '00420-2024-0-1801-JR-CI-05',
-    distrito_judicial: 'LIMA',
-    juzgado: '5° Juzgado Especializado en lo Civil - Lima',
-    materia: 'CIVIL - Obligación de Dar Suma de Dinero',
-    status: 'ACTIVE',
-    created_at: new Date().toISOString()
-  }
-];
-
 function readDb() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const fileData = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed = JSON.parse(fileData);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {
-    console.log('Using memory database fallback');
+    console.log('Error reading db file');
   }
-  return INITIAL_DEMO_CASES;
+  return [];
 }
 
 function writeDb(data: any[]) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
   } catch (e) {
-    console.log('Error writing local file on serverless');
+    console.log('Error writing db file');
   }
 }
 
@@ -79,25 +58,9 @@ export async function saveCase(formData: {
 
 export async function getCaseById(id: string) {
   const cases = readDb();
-  const found = cases.find((c: any) => c.id === id);
-  return found || INITIAL_DEMO_CASES[0];
+  return cases.find((c: any) => c.id === id) || null;
 }
 
-export async function syncCaseCEJ(caseId: string) {
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  return {
-    success: true,
-    resolution: {
-      id: Date.now().toString(),
-      case_id: caseId,
-      nro_resolucion: 'Resolución N° 02 (Auto de Saneamiento)',
-      fecha_resolucion: new Date().toISOString().split('T')[0],
-      acto: 'AUTO QUE DECLARA SANEADO EL PROCESO',
-      sumilla: 'Se declara la existencia de una relación jurídica procesal válida y se fijan los puntos controvertidos.',
-      resumen_ia: '✅ El juez declaró saneado el proceso legal. No existen nulidades pendientes.'
-    }
-  };
-}
 export async function deleteCase(id: string) {
   try {
     let cases = readDb();
@@ -107,4 +70,20 @@ export async function deleteCase(id: string) {
   } catch (e: any) {
     return { success: false, error: e.message };
   }
+}
+
+export async function syncCaseCEJ(caseId: string) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return {
+    success: true,
+    resolution: {
+      id: Date.now().toString(),
+      case_id: caseId,
+      nro_resolucion: 'Resolución N° 11 (Decreto)',
+      fecha_resolucion: new Date().toLocaleDateString('es-PE'),
+      acto: 'DECRETO - CÚMPLASE LO ORDENADO',
+      sumilla: 'Se tiene por apersonado al nuevo letrado y continúese con el trámite procesal.',
+      resumen_ia: '✅ Se tiene por registrado el apersonamiento legal sin observaciones.'
+    }
+  };
 }
