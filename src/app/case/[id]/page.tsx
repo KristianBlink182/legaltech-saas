@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getCaseById, syncCaseCEJ, deleteCase } from '@/app/actions';
-import { Case, Resolution } from '@/types/database';
 import { ArrowLeft, Building2, User, Sparkles, AlertTriangle, Send, FileDown, RefreshCw, Printer, DollarSign, Share2, Check, Trash2 } from 'lucide-react';
 import { TimelineItem } from '@/components/TimelineItem';
 import { CourtAnalytics } from '@/components/CourtAnalytics';
@@ -24,7 +23,32 @@ export default function CaseDetailPage() {
     { role: 'assistant', text: 'Hola, soy tu copiloto legal JUDIBOT. He analizado el expediente y sus actuaciones oficiales del Poder Judicial.' }
   ]);
 
-  const [resolutions, setResolutions] = useState<any[]>([]);
+  const [resolutions, setResolutions] = useState<any[]>([
+    {
+      id: 'res-1',
+      nro_resolucion: 'Resolución N° 10 (Decreto)',
+      fecha_resolucion: '19/08/2026',
+      acto: 'DECRETO - INGRESE A DESPACHO',
+      sumilla: 'AL PRINCIPAL. Y SIENDO EL ESTADO DEL PROCESO INGRESE LOS AUTOS A DESPACHO PARA RESOLVER; INTERVIENE LA SECRETARIA JUDICIAL POR DISPOSICIÓN SUPERIOR; NOTIFÍQUESE.',
+      resumen_ia: '✅ El proceso se encuentra expedito y pasa al despacho del juez para emitir resolución de fondo.'
+    },
+    {
+      id: 'res-2',
+      nro_resolucion: 'Resolución N° 09 (Ingreso)',
+      fecha_resolucion: '08/07/2026',
+      acto: 'REITERACIÓN DE OFICIO',
+      sumilla: 'APELACIÓN DE AUTO - PRINCIPAL / REITERÁNDOSE OFICIO AL JUZGADO CIVIL PERMANENTE.',
+      resumen_ia: 'Reiteración de oficio judicial en trámite de apelación elevada.'
+    },
+    {
+      id: 'res-3',
+      nro_resolucion: 'Auto de Vista (Sala Superior)',
+      fecha_resolucion: '18/05/2026',
+      acto: 'AUTO DE VISTA - DECLARA FUNDADO',
+      sumilla: 'DECLARA FUNDADO EL RECURSO DE APELACIÓN PRESENTADO POR LOS DEMANDANTES (POCLIN CATPO) CONTRA LA RESOLUCIÓN RECURRIDA; DECLARA NULA LA RESOLUCIÓN.',
+      resumen_ia: '⚠️ La Sala Superior declaró FUNDADA la apelación de los demandantes y NULA la resolución apelada.'
+    }
+  ]);
 
   useEffect(() => {
     async function load() {
@@ -32,19 +56,8 @@ export default function CaseDetailPage() {
         const data = await getCaseById(id as string);
         if (data) {
           setCaso(data);
-          if (data.resoluciones && data.resoluciones.length > 0) {
+          if (data.resoluciones && Array.isArray(data.resoluciones) && data.resoluciones.length > 0) {
             setResolutions(data.resoluciones);
-          } else {
-            setResolutions([
-              {
-                id: '1',
-                nro_resolucion: 'Resolución N° 10 (Decreto)',
-                fecha_resolucion: '19/08/2026',
-                acto: 'DECRETO - INGRESE A DESPACHO',
-                sumilla: 'AL PRINCIPAL: Y SIENDO EL ESTADO DEL PROCESO INGRESE LOS AUTOS A DESPACHO PARA RESOLVER.',
-                resumen_ia: '✅ El proceso se encuentra expedito y pasa al despacho del juez para emitir pronunciamiento.'
-              }
-            ]);
           }
         }
       }
@@ -74,7 +87,6 @@ export default function CaseDetailPage() {
 
     if (res.success && res.resolution) {
       setResolutions(prev => [res.resolution as any, ...prev]);
-      alert('¡Sincronización completada! Se detectó un nuevo movimiento en el CEJ.');
     }
   };
 
@@ -87,9 +99,9 @@ export default function CaseDetailPage() {
         body: JSON.stringify({
           expediente: caso?.expediente_numero,
           juzgado: caso?.juzgado,
-          demandante: 'POCLIN CATPO LEONIDAS Y OTROS',
+          demandante: 'POCLIN CATPO LEONIDAS Y DEMETRIO',
           demandado: 'CORBERA CHUQUIZUTA LELIS ENRIQUE',
-          tipoEscrito: 'SOLICITA SENTENCIA / EMISIÓN DE FALLO',
+          tipoEscrito: 'SOLICITA SENTENCIA Y PRONTO DESPACHO',
           instrucciones: 'Se solicita al juez emitir sentencia de fondo al encontrarse el proceso en estado de resolver.'
         })
       });
@@ -103,11 +115,9 @@ export default function CaseDetailPage() {
         document.body.appendChild(a);
         a.click();
         a.remove();
-      } else {
-        alert('Error generando documento.');
       }
     } catch (e) {
-      alert('Error de conexión.');
+      alert('Error descargando documento');
     } finally {
       setDownloading(false);
     }
@@ -126,7 +136,7 @@ export default function CaseDetailPage() {
         ...prev, 
         { 
           role: 'assistant', 
-          text: `Entendido. Con base en el último Decreto del 19/08/2026 de este expediente de Amazonas, los autos están en despacho para resolver. Puedes presionar "Generar Escrito Word" para solicitar pronto despacho.` 
+          text: `Entendido. Con base en la Resolución N° 10 (Decreto) del 19/08/2026 de este expediente de Amazonas, los autos están ingresados a despacho para resolver. Puedes presionar "Generar Escrito Word" para solicitar emisión de sentencia.` 
         }
       ]);
     }, 600);
@@ -137,11 +147,11 @@ export default function CaseDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 antialiased p-6">
+    <div className="min-h-screen bg-slate-950 text-slate-100 antialiased p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* Barra Superior */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* Barra Superior con Controles */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <button 
             onClick={() => router.push('/')} 
             className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition"
@@ -149,18 +159,18 @@ export default function CaseDetailPage() {
             <ArrowLeft className="w-4 h-4" /> Volver a expedientes
           </button>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button 
               onClick={handleCopyClientLink}
-              className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold px-3 py-2 rounded-xl transition"
             >
               {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-              <span>{copiedLink ? '¡Enlace Copiado!' : 'Portal del Cliente'}</span>
+              <span>{copiedLink ? '¡Copiado!' : 'Portal Cliente'}</span>
             </button>
 
             <button 
               onClick={() => router.push(`/case/${id}/report`)}
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition"
             >
               <Printer className="w-4 h-4 text-indigo-400" />
               <span>Reporte PDF</span>
@@ -169,25 +179,25 @@ export default function CaseDetailPage() {
             <button 
               onClick={handleSyncCEJ}
               disabled={syncing}
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin text-indigo-400' : ''}`} />
-              <span>{syncing ? 'Consultando...' : 'Verificar CEJ'}</span>
+              <span>{syncing ? 'Verificando...' : 'Verificar CEJ'}</span>
             </button>
 
             <button 
               onClick={handleDownloadDraft}
               disabled={downloading}
-              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95"
             >
               <FileDown className="w-4 h-4" />
-              <span>{downloading ? 'Generando...' : 'Generar Escrito Word (.docx)'}</span>
+              <span>{downloading ? 'Generando...' : 'Descargar Escrito Word'}</span>
             </button>
 
-            {/* BOTÓN ELIMINAR EXPEDIENTE */}
+            {/* BOTÓN DEL TACHO ROJO DE ELIMINAR */}
             <button 
               onClick={handleDelete}
-              className="p-2.5 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 rounded-xl transition"
+              className="p-2 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 rounded-xl transition"
               title="Eliminar Expediente"
             >
               <Trash2 className="w-4 h-4" />
@@ -214,8 +224,8 @@ export default function CaseDetailPage() {
           <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/30 px-5 py-3.5 rounded-2xl">
             <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0 animate-bounce" />
             <div>
-              <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">Estado de Expediente</p>
-              <p className="text-xs text-amber-200/90 mt-0.5">En Despacho para Resolver (Trámite)</p>
+              <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">Estado Judicial</p>
+              <p className="text-xs text-amber-200/90 mt-0.5">Autos a Despacho para Resolver (Trámite)</p>
             </div>
           </div>
         </div>
