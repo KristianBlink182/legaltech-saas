@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveCase } from '@/app/actions';
 
-// Permite peticiones desde la extensión de Chrome sin bloqueos
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
@@ -15,34 +14,23 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   try {
-    const data = await req.json();
-
-    console.log('[JUDIBOT EXTENSION SYNC]:', data.expediente);
+    const body = await req.json();
 
     const saved = await saveCase({
-      expediente_numero: data.expediente || '00009-2026-0-0101-JR-CI-01',
-      distrito_judicial: data.distrito || 'AMAZONAS',
-      juzgado: data.juzgado || 'Juzgado Mixto - Sede de Jumbilla',
-      materia: data.materia || 'CIVIL - Prescripción Adquisitiva de Dominio'
+      expediente_numero: body.expediente || body.expediente_numero || '00009-2026-0-0101-JR-CI-01',
+      distrito_judicial: body.distrito || body.distrito_judicial || 'AMAZONAS',
+      juzgado: body.juzgado || 'Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)',
+      materia: body.materia || 'CIVIL - Prescripción Adquisitiva de Dominio'
     });
 
     return NextResponse.json(
-      { success: true, message: 'Expediente guardado con éxito en JUDIBOT', data: saved },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+      { success: true, message: 'Expediente sincronizado con éxito', data: saved },
+      { headers: { 'Access-Control-Allow-Origin': '*' } }
     );
   } catch (err: any) {
     return NextResponse.json(
       { success: false, error: err.message },
-      {
-        status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
     );
   }
 }

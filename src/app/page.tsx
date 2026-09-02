@@ -5,34 +5,35 @@ import { Case } from '@/types/database';
 import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
+import { getCases } from '@/app/actions';
 
 export default function Dashboard() {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCases = () => {
+  const fetchCases = async () => {
+    setLoading(true);
     try {
-      const saved = localStorage.getItem('judibot_cases');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setCases(parsed);
+      const res = await fetch('/api/cases');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setCases(data);
           setLoading(false);
           return;
         }
       }
+      const dataAction = await getCases();
+      setCases(dataAction as Case[]);
     } catch (e) {
-      console.log('Error reading localStorage');
+      console.log('Error fetching cases');
+    } finally {
+      setLoading(false);
     }
-    setCases([]);
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchCases();
-    // Escuchar cambios automáticos cuando la extensión guarde en segundo plano
-    window.addEventListener('storage', fetchCases);
-    return () => window.removeEventListener('storage', fetchCases);
   }, []);
 
   return (
