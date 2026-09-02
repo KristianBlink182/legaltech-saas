@@ -5,53 +5,48 @@ import { Case } from '@/types/database';
 import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
-import { getCases } from '@/app/actions';
 
-const DEFAULT_CASES: Case[] = [
+const INITIAL_CASES: Case[] = [
   {
-    id: '1',
+    id: '1788211689017',
     expediente_numero: '00009-2026-0-0101-JR-CI-01',
     distrito_judicial: 'AMAZONAS',
-    juzgado: 'Juzgado Mixto de Jumbilla - Bongará (Amazonas)',
+    juzgado: 'Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)',
     materia: 'CIVIL - Prescripción Adquisitiva de Dominio',
-    status: 'ACTIVE',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    expediente_numero: '00420-2024-0-1801-JR-CI-05',
-    distrito_judicial: 'LIMA',
-    juzgado: '5° Juzgado Especializado en lo Civil - Lima',
-    materia: 'CIVIL - Obligación de Dar Suma de Dinero',
     status: 'ACTIVE',
     created_at: new Date().toISOString()
   }
 ];
 
 export default function Dashboard() {
-  const [cases, setCases] = useState<Case[]>(DEFAULT_CASES);
+  const [cases, setCases] = useState<Case[]>(INITIAL_CASES);
   const [loading, setLoading] = useState(false);
 
-  const fetchCases = async () => {
-    try {
-      const data = await getCases();
-      if (data && data.length > 0) {
-        setCases(data as Case[]);
+  const loadCases = () => {
+    const saved = localStorage.getItem('judibot_cases');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setCases(parsed);
+          return;
+        }
+      } catch (e) {
+        console.log('Error reading storage');
       }
-    } catch (e) {
-      console.log('Using default cases');
-    } finally {
-      setLoading(false);
     }
+    // Si no hay nada guardado aún, inicializa con el caso real de Amazonas
+    localStorage.setItem('judibot_cases', JSON.stringify(INITIAL_CASES));
+    setCases(INITIAL_CASES);
   };
 
   useEffect(() => {
-    fetchCases();
+    loadCases();
   }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-      <Navbar onRefresh={fetchCases} />
+      <Navbar onRefresh={loadCases} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <StatsGrid totalCases={cases.length} pendingDeadlines={1} />
