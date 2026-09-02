@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Case } from '@/types/database';
 import { FileText, Building2, User, ChevronRight, Trash2 } from 'lucide-react';
@@ -10,13 +10,32 @@ interface CaseListProps {
   onRefresh?: () => void;
 }
 
-export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh }) => {
+export const CaseList: React.FC<CaseListProps> = ({ cases: initialCases, loading, onRefresh }) => {
   const router = useRouter();
+  const [localCases, setLocalCases] = useState<Case[]>(initialCases);
+
+  useEffect(() => {
+    setLocalCases(initialCases);
+  }, [initialCases]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Evita que abra el caso al presionar el tacho
-    if (confirm('¿Deseas eliminar este expediente del monitoreo?')) {
-      await deleteCase(id);
+    e.stopPropagation(); // Evita abrir el detalle al hacer clic en el tacho
+
+    if (confirm('¿Estás seguro de que deseas eliminar este expediente del monitoreo?')) {
+      // 1. Desaparece de la pantalla al instante (0 milisegundos)
+      const filtered = localCases.filter(c => c.id !== id);
+      setLocalCases(filtered);
+
+      // 2. Guarda el cambio en la memoria del navegador
+      localStorage.setItem('judibot_cases', JSON.stringify(filtered));
+
+      // 3. Ejecuta el borrado en el servidor
+      try {
+        await deleteCase(id);
+      } catch (err) {
+        console.log('Error deleting from server:', err);
+      }
+
       if (onRefresh) onRefresh();
     }
   };
@@ -30,7 +49,7 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh })
     );
   }
 
-  if (cases.length === 0) {
+  if (localCases.length === 0) {
     return (
       <div className="text-center py-16 border border-slate-800 border-dashed rounded-2xl bg-slate-900/20">
         <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
@@ -44,7 +63,7 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh })
 
   return (
     <div className="space-y-3">
-      {cases.map((item) => (
+      {localCases.map((item) => (
         <div 
           key={item.id} 
           onClick={() => router.push(`/case/${item.id}`)}
@@ -72,10 +91,10 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh })
           </div>
 
           <div className="flex items-center gap-3 self-end md:self-center">
-            {/* Botón de Borrado Rápido en la tarjeta */}
+            {/* Botón Tacho Rojo */}
             <button 
               onClick={(e) => handleDelete(e, item.id)}
-              className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition"
+              className="p-2.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 rounded-xl border border-transparent hover:border-rose-500/30 transition"
               title="Eliminar Expediente"
             >
               <Trash2 className="w-4 h-4" />
