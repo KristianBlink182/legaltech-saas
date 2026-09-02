@@ -3,8 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 const DB_FILE = path.join(process.cwd(), 'database_cases.json');
-
-// Memoria global compartida en el servidor
 let memoryCases: any[] = [];
 
 function getDbCases() {
@@ -32,7 +30,19 @@ function saveDbCases(data: any[]) {
   }
 }
 
-// 1. OBTENER EXPEDIENTES
+// 1. MANEJADOR DE SEGURIDAD CORS PARA EXTENSIÓN DE CHROME
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
+    },
+  });
+}
+
+// 2. OBTENER EXPEDIENTES
 export async function GET() {
   const cases = getDbCases();
   return NextResponse.json(cases, {
@@ -40,7 +50,7 @@ export async function GET() {
   });
 }
 
-// 2. GUARDAR / SINCRONIZAR EXPEDIENTE
+// 3. GUARDAR / SINCRONIZAR EXPEDIENTE
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -48,7 +58,6 @@ export async function POST(req: Request) {
 
     const nroExp = body.expediente || body.expediente_numero || '00009-2026-0-0101-JR-CI-01';
 
-    // Eliminar si ya existía para actualizarlo al inicio
     cases = cases.filter((c: any) => c.expediente_numero !== nroExp);
 
     const newCase = {
@@ -101,7 +110,7 @@ export async function POST(req: Request) {
   }
 }
 
-// 3. ELIMINAR EXPEDIENTE REAL
+// 4. ELIMINAR EXPEDIENTE
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
