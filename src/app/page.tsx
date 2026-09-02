@@ -5,34 +5,37 @@ import { Case } from '@/types/database';
 import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
-import { getCases } from '@/app/actions';
 
 export default function Dashboard() {
   const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const fetchCases = async () => {
-    setLoading(true);
+  const loadCases = () => {
     try {
-      const data = await getCases();
-      setCases(data as Case[]);
+      const saved = localStorage.getItem('judibot_cases');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setCases(parsed);
+          return;
+        }
+      }
     } catch (e) {
-      console.log('Error fetching cases');
-    } finally {
-      setLoading(false);
+      console.log('Storage empty');
     }
+    setCases([]);
   };
 
   useEffect(() => {
-    fetchCases();
+    loadCases();
   }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-      <Navbar onRefresh={fetchCases} />
+      <Navbar onRefresh={loadCases} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <StatsGrid totalCases={cases.length} pendingDeadlines={cases.length > 0 ? 1 : 0} />
+        <StatsGrid totalCases={cases.length} pendingDeadlines={0} />
 
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -41,7 +44,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <CaseList cases={cases} loading={loading} onRefresh={fetchCases} />
+        <CaseList cases={cases} loading={loading} onRefresh={loadCases} />
       </main>
     </div>
   );
