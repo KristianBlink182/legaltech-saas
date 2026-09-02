@@ -14,17 +14,8 @@ export default function Dashboard() {
   const fetchCases = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/cases');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setCases(data);
-          setLoading(false);
-          return;
-        }
-      }
-      const dataAction = await getCases();
-      setCases(dataAction as Case[]);
+      const data = await getCases();
+      setCases(data as Case[]);
     } catch (e) {
       console.log('Error fetching cases');
     } finally {
@@ -50,7 +41,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <CaseList cases={cases} loading={loading} />
+        <CaseList cases={cases} loading={loading} onRefresh={fetchCases} />
       </main>
     </div>
   );

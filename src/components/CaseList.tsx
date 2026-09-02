@@ -1,21 +1,31 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Case } from '@/types/database';
-import { FileText, Building2, User, ChevronRight } from 'lucide-react';
+import { FileText, Building2, User, ChevronRight, Trash2 } from 'lucide-react';
+import { deleteCase } from '@/app/actions';
 
 interface CaseListProps {
   cases: Case[];
   loading: boolean;
+  onRefresh?: () => void;
 }
 
-export const CaseList: React.FC<CaseListProps> = ({ cases, loading }) => {
+export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh }) => {
   const router = useRouter();
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Evita que abra el caso al presionar el tacho
+    if (confirm('¿Deseas eliminar este expediente del monitoreo?')) {
+      await deleteCase(id);
+      if (onRefresh) onRefresh();
+    }
+  };
 
   if (loading) {
     return (
       <div className="text-center py-16 border border-slate-800 rounded-2xl bg-slate-900/30">
         <div className="inline-block animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full mb-3" />
-        <p className="text-sm text-slate-400">Sincronizando con CEJ Poder Judicial...</p>
+        <p className="text-sm text-slate-400">Cargando expedientes judiciales...</p>
       </div>
     );
   }
@@ -26,7 +36,7 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading }) => {
         <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
         <h3 className="text-base font-semibold text-white">No tienes expedientes registrados</h3>
         <p className="text-sm text-slate-400 mt-1 max-w-sm mx-auto">
-          Comienza agregando tu primer expediente judicial para activar el monitoreo inteligente 24/7.
+          Comienza sincronizando desde el CEJ o cargando una cédula en PDF.
         </p>
       </div>
     );
@@ -61,11 +71,16 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 self-end md:self-center">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs text-slate-500">Última verificación</p>
-              <p className="text-xs text-slate-300 font-medium">Hace unos instantes</p>
-            </div>
+          <div className="flex items-center gap-3 self-end md:self-center">
+            {/* Botón de Borrado Rápido en la tarjeta */}
+            <button 
+              onClick={(e) => handleDelete(e, item.id)}
+              className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition"
+              title="Eliminar Expediente"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+
             <div className="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white group-hover:bg-indigo-600 transition">
               <ChevronRight className="w-4 h-4" />
             </div>
