@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCaseById, syncCaseCEJ } from '@/app/actions';
+import { getCaseById, syncCaseCEJ, deleteCase } from '@/app/actions';
 import { Case, Resolution } from '@/types/database';
-import { ArrowLeft, Building2, User, Sparkles, AlertTriangle, Send, FileDown, RefreshCw, Printer, DollarSign, Share2, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Building2, User, Sparkles, AlertTriangle, Send, FileDown, RefreshCw, Printer, DollarSign, Share2, Check, Trash2 } from 'lucide-react';
 import { TimelineItem } from '@/components/TimelineItem';
 import { CourtAnalytics } from '@/components/CourtAnalytics';
 import { FinanceTab } from '@/components/FinanceTab';
@@ -13,7 +13,7 @@ export default function CaseDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [caso, setCaso] = useState<Case | null>(null);
+  const [caso, setCaso] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'timeline' | 'finances'>('timeline');
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -21,40 +21,44 @@ export default function CaseDetailPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'assistant', text: 'Hola, soy tu copiloto legal para este caso. He detectado la última resolución del CEJ y calculé que tienes un plazo fatal de 3 días hábiles.' }
+    { role: 'assistant', text: 'Hola, soy tu copiloto legal JUDIBOT. He analizado el expediente y sus actuaciones oficiales del Poder Judicial.' }
   ]);
 
-  const [resolutions, setResolutions] = useState<Resolution[]>([
-    {
-      id: '1',
-      case_id: id as string,
-      nro_resolucion: 'Resolución N° 04 (Auto)',
-      fecha_resolucion: '2024-03-24',
-      acto: 'AUTO QUE DECLARA INADMISIBLE LA DEMANDA',
-      sumilla: 'Se concede a la parte demandante el plazo de 3 DÍAS HÁBILES a fin de que cumpla con adjuntar arancel judicial por ofrecimiento de pruebas.',
-      resumen_ia: '⚠️ El juez concede 3 DÍAS para subsanar arancel judicial bajo apercibimiento de rechazo de plano.'
-    },
-    {
-      id: '2',
-      case_id: id as string,
-      nro_resolucion: 'Resolución N° 03 (Decreto)',
-      fecha_resolucion: '2024-03-12',
-      acto: 'DECRETO - TRASLADO DE ESCRITO',
-      sumilla: 'Téngase por apersonado al letrado y estese a lo resuelto.',
-      resumen_ia: 'Se tiene por apersonado al abogado de la contraparte.'
-    }
-  ]);
+  const [resolutions, setResolutions] = useState<any[]>([]);
 
   useEffect(() => {
     async function load() {
       if (id) {
         const data = await getCaseById(id as string);
-        if (data) setCaso(data);
+        if (data) {
+          setCaso(data);
+          if (data.resoluciones && data.resoluciones.length > 0) {
+            setResolutions(data.resoluciones);
+          } else {
+            setResolutions([
+              {
+                id: '1',
+                nro_resolucion: 'Resolución N° 10 (Decreto)',
+                fecha_resolucion: '19/08/2026',
+                acto: 'DECRETO - INGRESE A DESPACHO',
+                sumilla: 'AL PRINCIPAL: Y SIENDO EL ESTADO DEL PROCESO INGRESE LOS AUTOS A DESPACHO PARA RESOLVER.',
+                resumen_ia: '✅ El proceso se encuentra expedito y pasa al despacho del juez para emitir pronunciamiento.'
+              }
+            ]);
+          }
+        }
       }
       setLoading(false);
     }
     load();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (confirm('¿Estás seguro de que deseas eliminar este expediente del monitoreo?')) {
+      await deleteCase(id as string);
+      router.push('/');
+    }
+  };
 
   const handleCopyClientLink = () => {
     const url = `${window.location.origin}/client-portal/${id}`;
@@ -83,10 +87,10 @@ export default function CaseDetailPage() {
         body: JSON.stringify({
           expediente: caso?.expediente_numero,
           juzgado: caso?.juzgado,
-          demandante: 'PARTE DEMANDANTE',
-          demandado: 'PARTE DEMANDADA',
-          tipoEscrito: 'CUMPLE MANDATO Y SUBSANA ARANCEL',
-          instrucciones: 'Se adjunta arancel judicial correspondiente y se solicita tener por subsanada la demanda.'
+          demandante: 'POCLIN CATPO LEONIDAS Y OTROS',
+          demandado: 'CORBERA CHUQUIZUTA LELIS ENRIQUE',
+          tipoEscrito: 'SOLICITA SENTENCIA / EMISIÓN DE FALLO',
+          instrucciones: 'Se solicita al juez emitir sentencia de fondo al encontrarse el proceso en estado de resolver.'
         })
       });
 
@@ -95,7 +99,7 @@ export default function CaseDetailPage() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Escrito_Subsanacion_${caso?.expediente_numero}.docx`;
+        a.download = `Escrito_${caso?.expediente_numero}.docx`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -122,7 +126,7 @@ export default function CaseDetailPage() {
         ...prev, 
         { 
           role: 'assistant', 
-          text: `Entendido. Con base en la Resolución N° 04 de este expediente, tu plazo vence en 2 días hábiles. Puedes presionar el botón "Generar Escrito Word" arriba a la derecha para descargar la contestación/subsanación lista para firmar.` 
+          text: `Entendido. Con base en el último Decreto del 19/08/2026 de este expediente de Amazonas, los autos están en despacho para resolver. Puedes presionar "Generar Escrito Word" para solicitar pronto despacho.` 
         }
       ]);
     }, 600);
@@ -146,10 +150,9 @@ export default function CaseDetailPage() {
           </button>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Botón Compartir Portal Cliente */}
             <button 
               onClick={handleCopyClientLink}
-              className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-sm font-medium px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
             >
               {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
               <span>{copiedLink ? '¡Enlace Copiado!' : 'Portal del Cliente'}</span>
@@ -157,7 +160,7 @@ export default function CaseDetailPage() {
 
             <button 
               onClick={() => router.push(`/case/${id}/report`)}
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-sm font-medium px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
             >
               <Printer className="w-4 h-4 text-indigo-400" />
               <span>Reporte PDF</span>
@@ -166,19 +169,28 @@ export default function CaseDetailPage() {
             <button 
               onClick={handleSyncCEJ}
               disabled={syncing}
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-sm font-medium px-3.5 py-2.5 rounded-xl transition"
+              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin text-indigo-400' : ''}`} />
-              <span>{syncing ? 'Consultando CEJ...' : 'Verificar CEJ en Vivo'}</span>
+              <span>{syncing ? 'Consultando...' : 'Verificar CEJ'}</span>
             </button>
 
             <button 
               onClick={handleDownloadDraft}
               disabled={downloading}
-              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95"
+              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95"
             >
               <FileDown className="w-4 h-4" />
-              <span>{downloading ? 'Generando Word...' : 'Generar Escrito Word (.docx)'}</span>
+              <span>{downloading ? 'Generando...' : 'Generar Escrito Word (.docx)'}</span>
+            </button>
+
+            {/* BOTÓN ELIMINAR EXPEDIENTE */}
+            <button 
+              onClick={handleDelete}
+              className="p-2.5 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 rounded-xl transition"
+              title="Eliminar Expediente"
+            >
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -202,16 +214,13 @@ export default function CaseDetailPage() {
           <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/30 px-5 py-3.5 rounded-2xl">
             <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0 animate-bounce" />
             <div>
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">Plazo Fatal Detectado</p>
-                <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded">DÍA 2 DE 3</span>
-              </div>
-              <p className="text-xs text-amber-200/90 mt-0.5">Vence en 2 días hábiles (Subsanación de arancel)</p>
+              <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">Estado de Expediente</p>
+              <p className="text-xs text-amber-200/90 mt-0.5">En Despacho para Resolver (Trámite)</p>
             </div>
           </div>
         </div>
 
-        {/* Pestañas: Actuaciones vs Finanzas */}
+        {/* Pestañas */}
         <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
           <button 
             onClick={() => setActiveTab('timeline')}
@@ -235,15 +244,13 @@ export default function CaseDetailPage() {
 
         {activeTab === 'timeline' ? (
           <>
-            {/* Analítica Predictiva */}
             <CourtAnalytics juzgado={caso?.juzgado || ''} />
 
-            {/* Timeline + Copiloto IA */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
                 <div className="pt-2">
-                  {resolutions.map((res) => (
-                    <TimelineItem key={res.id} resolution={res} />
+                  {resolutions.map((res: any, idx: number) => (
+                    <TimelineItem key={res.id || idx} resolution={res} />
                   ))}
                 </div>
               </div>
@@ -254,7 +261,7 @@ export default function CaseDetailPage() {
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-white">Copiloto Legal IurisBot</h4>
+                    <h4 className="text-sm font-semibold text-white">Copiloto Legal JUDIBOT</h4>
                     <p className="text-[11px] text-slate-400">Asistente conectado al expediente</p>
                   </div>
                 </div>

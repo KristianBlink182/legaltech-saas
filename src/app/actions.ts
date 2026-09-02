@@ -98,3 +98,13 @@ export async function syncCaseCEJ(caseId: string) {
     }
   };
 }
+export async function deleteCase(id: string) {
+  try {
+    let cases = readDb();
+    cases = cases.filter((c: any) => c.id !== id);
+    writeDb(cases);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
