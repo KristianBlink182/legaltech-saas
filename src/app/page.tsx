@@ -6,50 +6,41 @@ import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
 
-const INITIAL_CASES: Case[] = [
-  {
-    id: '1788211689017',
-    expediente_numero: '00009-2026-0-0101-JR-CI-01',
-    distrito_judicial: 'AMAZONAS',
-    juzgado: 'Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)',
-    materia: 'CIVIL - Prescripción Adquisitiva de Dominio',
-    status: 'ACTIVE',
-    created_at: new Date().toISOString()
-  }
-];
-
 export default function Dashboard() {
-  const [cases, setCases] = useState<Case[]>(INITIAL_CASES);
-  const [loading, setLoading] = useState(false);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const loadCases = () => {
-    const saved = localStorage.getItem('judibot_cases');
-    if (saved) {
-      try {
+  const fetchCases = () => {
+    try {
+      const saved = localStorage.getItem('judibot_cases');
+      if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           setCases(parsed);
+          setLoading(false);
           return;
         }
-      } catch (e) {
-        console.log('Error reading storage');
       }
+    } catch (e) {
+      console.log('Error reading localStorage');
     }
-    // Si no hay nada guardado aún, inicializa con el caso real de Amazonas
-    localStorage.setItem('judibot_cases', JSON.stringify(INITIAL_CASES));
-    setCases(INITIAL_CASES);
+    setCases([]);
+    setLoading(false);
   };
 
   useEffect(() => {
-    loadCases();
+    fetchCases();
+    // Escuchar cambios automáticos cuando la extensión guarde en segundo plano
+    window.addEventListener('storage', fetchCases);
+    return () => window.removeEventListener('storage', fetchCases);
   }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-      <Navbar onRefresh={loadCases} />
+      <Navbar onRefresh={fetchCases} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <StatsGrid totalCases={cases.length} pendingDeadlines={1} />
+        <StatsGrid totalCases={cases.length} pendingDeadlines={cases.length > 0 ? 1 : 0} />
 
         <div className="flex items-center justify-between mb-4">
           <div>
