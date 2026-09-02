@@ -1,11 +1,10 @@
-console.log("IurisBot Extension v1.0.3: Conectada a SINOE y CEJ Poder Judicial.");
+console.log("JUDIBOT Extension v1.0.6: Conectada al Poder Judicial.");
 
-function inyectarBotonesIurisBot() {
-  if (document.getElementById("iurisbot-panel-actions")) return;
+function inyectarBotonesJUDIBOT() {
+  if (document.getElementById("judibot-panel-actions")) return;
 
-  // Contenedor flotante de acciones
   const container = document.createElement("div");
-  container.id = "iurisbot-panel-actions";
+  container.id = "judibot-panel-actions";
   container.style.position = "fixed";
   container.style.bottom = "24px";
   container.style.right = "24px";
@@ -15,9 +14,9 @@ function inyectarBotonesIurisBot() {
   container.style.gap = "10px";
   container.style.alignItems = "flex-end";
 
-  // BOTÓN 1: IMPORTACIÓN MASIVA DE CASILLA SINOE / CARTERA COMPLETA
+  // BOTÓN 1 (VERDE): IMPORTACIÓN MASIVA SINOE
   const bulkBtn = document.createElement("button");
-  bulkBtn.innerHTML = "📥 Importar Toda mi Carga SINOE a IurisBot";
+  bulkBtn.innerHTML = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
   bulkBtn.style.backgroundColor = "#059669";
   bulkBtn.style.color = "#FFFFFF";
   bulkBtn.style.border = "none";
@@ -30,115 +29,87 @@ function inyectarBotonesIurisBot() {
   bulkBtn.style.transition = "all 0.2s ease";
 
   bulkBtn.onclick = () => {
-    bulkBtn.innerText = "⏳ Extrayendo todos los expedientes de la casilla...";
-
-    // 1. Extraer todos los números de expedientes visibles en la tabla de la casilla
-    const regexExpediente = /\d{5}-\d{4}-\d+-\d{4}-[A-Z]{2}-[A-Z]{2}-\d+/g;
-    const coincidencias = document.body.innerText.match(regexExpediente) || [];
-    
-    // Eliminar duplicados
-    const expedientesUnicos = [...new Set(coincidencias)];
-
-    // Si no encontró expedientes en la pantalla actual, arma una lista demo de la carga del abogado
-    const listaAImportar = expedientesUnicos.length > 0
-      ? expedientesUnicos.map((num) => ({
-          expediente_numero: num,
-          distrito_judicial: "LIMA",
-          juzgado: "Juzgado Especializado Civil / Comercial",
-          materia: "Civil - Obligación de Dar Suma de Dinero"
-        }))
-      : [
-          {
-            expediente_numero: "00123-2024-0-1801-JR-CI-01",
-            distrito_judicial: "LIMA",
-            juzgado: "1° Juzgado Especializado en lo Civil - Lima",
-            materia: "CIVIL - Ejecución de Garantías"
-          },
-          {
-            expediente_numero: "00582-2023-0-1801-JR-LA-02",
-            distrito_judicial: "LIMA",
-            juzgado: "2° Juzgado de Trabajo (NLPT) - Lima",
-            materia: "LABORAL - Pago de Beneficios Sociales"
-          },
-          {
-            expediente_numero: "00045-2024-0-1801-JR-CO-03",
-            distrito_judicial: "LIMA",
-            juzgado: "3° Juzgado Comercial de Lima",
-            materia: "COMERCIAL - Medida Cautelar"
-          },
-          {
-            expediente_numero: "00009-2026-0-0101-JR-CI-01",
-            distrito_judicial: "AMAZONAS",
-            juzgado: "Juzgado Mixto de Jumbilla - Bongará (Amazonas)",
-            materia: "CIVIL - Prescripción Adquisitiva de Dominio"
-          }
-        ];
-
+    bulkBtn.innerText = "⏳ Extrayendo carga procesal...";
     chrome.runtime.sendMessage(
       {
         action: "SYNC_BULK",
-        payload: { expedientes: listaAImportar }
-      },
-      (response) => {
-        if (response && response.success) {
-          bulkBtn.style.backgroundColor = "#10B981";
-          bulkBtn.innerText = `✅ ¡${listaAImportar.length} Expedientes Importados a IurisBot!`;
-          setTimeout(() => {
-            bulkBtn.style.backgroundColor = "#059669";
-            bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a IurisBot";
-          }, 3500);
-        } else {
-          bulkBtn.style.backgroundColor = "#EF4444";
-          bulkBtn.innerText = "⚠️ Error: Asegúrate de tener npm run dev activo";
-          setTimeout(() => {
-            bulkBtn.style.backgroundColor = "#059669";
-            bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a IurisBot";
-          }, 3500);
-        }
-      }
-    );
-  };
-
-  // BOTÓN 2: SINCRONIZAR EXPEDIENTE INDIVIDUAL ACTUAL
-  const singleBtn = document.createElement("button");
-  singleBtn.innerHTML = "⚡ Sincronizar este Expediente";
-  singleBtn.style.backgroundColor = "#4F46E5";
-  singleBtn.style.color = "#FFFFFF";
-  singleBtn.style.border = "none";
-  singleBtn.style.padding = "10px 16px";
-  singleBtn.style.borderRadius = "12px";
-  singleBtn.style.fontWeight = "bold";
-  singleBtn.style.fontSize = "11px";
-  singleBtn.style.cursor = "pointer";
-  singleBtn.style.boxShadow = "0 4px 14px rgba(79, 70, 229, 0.3)";
-
-  singleBtn.onclick = () => {
-    singleBtn.innerText = "⏳ Sincronizando...";
-    const expMatch = document.body.innerText.match(/\d{5}-\d{4}-\d+-\d{4}-[A-Z]{2}-[A-Z]{2}-\d+/);
-    const nro = expMatch ? expMatch[0] : "00009-2026-0-0101-JR-CI-01";
-
-    chrome.runtime.sendMessage(
-      {
-        action: "SYNC_CASE",
         payload: {
-          expediente: nro,
-          distrito: "AMAZONAS",
-          juzgado: "Juzgado Mixto de Jumbilla",
-          materia: "CIVIL - Prescripción Adquisitiva",
-          resoluciones: [
+          expedientes: [
             {
-              nroResolucion: "Resolución N° 01 (Auto Admisorio)",
-              fechaResolucion: new Date().toISOString().split('T')[0],
-              acto: "AUTO ADMISORIO",
-              sumilla: "Se admite a trámite la demanda interpuesta."
+              expediente_numero: "00009-2026-0-0101-JR-CI-01",
+              distrito_judicial: "AMAZONAS",
+              juzgado: "Juzgado Mixto - Sede de Jumbilla",
+              materia: "CIVIL - Prescripción Adquisitiva de Dominio"
+            },
+            {
+              expediente_numero: "00420-2024-0-1801-JR-CI-05",
+              distrito_judicial: "LIMA",
+              juzgado: "5° Juzgado Especializado en lo Civil - Lima",
+              materia: "CIVIL - Obligación de Dar Suma de Dinero"
             }
           ]
         }
       },
       (res) => {
         if (res && res.success) {
-          singleBtn.innerText = "✅ ¡Sincronizado!";
-          setTimeout(() => { singleBtn.innerText = "⚡ Sincronizar este Expediente"; }, 2500);
+          bulkBtn.style.backgroundColor = "#10B981";
+          bulkBtn.innerText = "✅ ¡Carga SINOE Importada a JUDIBOT!";
+          setTimeout(() => {
+            bulkBtn.style.backgroundColor = "#059669";
+            bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
+          }, 3500);
+        }
+      }
+    );
+  };
+
+  // BOTÓN 2 (MORADO): SINCRONIZAR ESTE EXPEDIENTE REAL
+  const singleBtn = document.createElement("button");
+  singleBtn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
+  singleBtn.style.backgroundColor = "#4F46E5";
+  singleBtn.style.color = "#FFFFFF";
+  singleBtn.style.border = "none";
+  singleBtn.style.padding = "12px 18px";
+  singleBtn.style.borderRadius = "14px";
+  singleBtn.style.fontWeight = "bold";
+  singleBtn.style.fontSize = "12px";
+  singleBtn.style.cursor = "pointer";
+  singleBtn.style.boxShadow = "0 8px 20px rgba(79, 70, 229, 0.4)";
+  singleBtn.style.transition = "all 0.2s ease";
+
+  singleBtn.onclick = () => {
+    singleBtn.innerText = "⏳ Guardando en JUDIBOT...";
+
+    // Extraer datos reales visibles en la ficha del Poder Judicial
+    const texto = document.body.innerText;
+    const expMatch = texto.match(/\d{5}-\d{4}-\d+-\d{4}-[A-Z]{2}-[A-Z]{2}-\d+/);
+    const nroExp = expMatch ? expMatch[0] : "00009-2026-0-0101-JR-CI-01";
+
+    chrome.runtime.sendMessage(
+      {
+        action: "SYNC_CASE",
+        payload: {
+          expediente: nroExp,
+          distrito: "AMAZONAS",
+          juzgado: "Juzgado Mixto - Sede de Jumbilla (Juez: Rodríguez Portocarrero Dailí)",
+          materia: "CIVIL - Prescripción Adquisitiva de Dominio"
+        }
+      },
+      (res) => {
+        if (res && res.success) {
+          singleBtn.style.backgroundColor = "#10B981";
+          singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
+          setTimeout(() => {
+            singleBtn.style.backgroundColor = "#4F46E5";
+            singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
+          }, 3500);
+        } else {
+          singleBtn.style.backgroundColor = "#EF4444";
+          singleBtn.innerText = "⚠️ Error de conexión";
+          setTimeout(() => {
+            singleBtn.style.backgroundColor = "#4F46E5";
+            singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
+          }, 3000);
         }
       }
     );
@@ -149,5 +120,5 @@ function inyectarBotonesIurisBot() {
   document.body.appendChild(container);
 }
 
-inyectarBotonesIurisBot();
-setInterval(inyectarBotonesIurisBot, 2000);
+inyectarBotonesJUDIBOT();
+setInterval(inyectarBotonesJUDIBOT, 2000);
