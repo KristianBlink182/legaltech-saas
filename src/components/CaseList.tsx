@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Case } from '@/types/database';
 import { FileText, Building2, User, ChevronRight, Trash2 } from 'lucide-react';
-import { deleteCase } from '@/app/actions';
 
 interface CaseListProps {
   cases: Case[];
@@ -10,33 +9,19 @@ interface CaseListProps {
   onRefresh?: () => void;
 }
 
-export const CaseList: React.FC<CaseListProps> = ({ cases: initialCases, loading, onRefresh }) => {
+export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh }) => {
   const router = useRouter();
-  const [localCases, setLocalCases] = useState<Case[]>(initialCases);
-
-  useEffect(() => {
-    setLocalCases(initialCases);
-  }, [initialCases]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation(); // Evita abrir el detalle al hacer clic en el tacho
 
     if (confirm('¿Estás seguro de que deseas eliminar este expediente del monitoreo?')) {
-      // 1. Desaparece de la pantalla al instante (0 milisegundos)
-      const filtered = localCases.filter(c => c.id !== id);
-      setLocalCases(filtered);
-
-      // 2. Guarda el cambio en la memoria del navegador
-      localStorage.setItem('judibot_cases', JSON.stringify(filtered));
-
-      // 3. Ejecuta el borrado en el servidor
       try {
-        await deleteCase(id);
+        await fetch(`/api/cases?id=${id}`, { method: 'DELETE' });
+        if (onRefresh) onRefresh();
       } catch (err) {
-        console.log('Error deleting from server:', err);
+        console.log('Error deleting case');
       }
-
-      if (onRefresh) onRefresh();
     }
   };
 
@@ -49,7 +34,7 @@ export const CaseList: React.FC<CaseListProps> = ({ cases: initialCases, loading
     );
   }
 
-  if (localCases.length === 0) {
+  if (cases.length === 0) {
     return (
       <div className="text-center py-16 border border-slate-800 border-dashed rounded-2xl bg-slate-900/20">
         <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
@@ -63,7 +48,7 @@ export const CaseList: React.FC<CaseListProps> = ({ cases: initialCases, loading
 
   return (
     <div className="space-y-3">
-      {localCases.map((item) => (
+      {cases.map((item) => (
         <div 
           key={item.id} 
           onClick={() => router.push(`/case/${item.id}`)}
