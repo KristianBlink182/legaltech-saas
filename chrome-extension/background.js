@@ -1,17 +1,23 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "SYNC_CASE") {
-    fetch("https://legaltech-saas-g156.vercel.app/api/cases", {
+  const SERVER_URL = "https://legaltech-saas-g156.vercel.app";
+
+  if (request.action === "SYNC_CASE" || request.action === "SYNC_BULK") {
+    fetch(`${SERVER_URL}/api/cases`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(request.payload)
     })
-      .then((res) => {
-        sendResponse({ success: true });
+      .then(async (res) => {
+        const data = await res.json();
+        sendResponse({ success: res.ok, data });
       })
       .catch((err) => {
-        sendResponse({ success: true }); // Responde éxito para confirmar la UI
+        sendResponse({ success: false, error: err.message });
       });
 
-    return true; // Mantiene el canal abierto
+    return true;
   }
 });
