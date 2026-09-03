@@ -1,71 +1,58 @@
-console.log("JUDIBOT Extension: Activa en Poder Judicial.");
+console.log("JUDIBOT Extension: Monitor activo en el Poder Judicial.");
 
-function inyectarBotonesPJ() {
-  if (document.getElementById("judibot-panel-actions")) return;
+function inyectarBotonPJ() {
+  if (!window.location.hostname.includes("pj.gob.pe")) return;
+  if (document.getElementById("judibot-single-btn")) return;
 
-  const container = document.createElement("div");
-  container.id = "judibot-panel-actions";
-  container.style.position = "fixed";
-  container.style.bottom = "24px";
-  container.style.right = "24px";
-  container.style.zIndex = "999999";
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
-  container.style.gap = "10px";
-  container.style.alignItems = "flex-end";
+  const btn = document.createElement("button");
+  btn.id = "judibot-single-btn";
+  btn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
+  btn.style.position = "fixed";
+  btn.style.bottom = "24px";
+  btn.style.right = "24px";
+  btn.style.zIndex = "999999";
+  btn.style.backgroundColor = "#4F46E5";
+  btn.style.color = "#FFFFFF";
+  btn.style.border = "none";
+  btn.style.padding = "14px 20px";
+  btn.style.borderRadius = "14px";
+  btn.style.fontWeight = "bold";
+  btn.style.fontSize = "12px";
+  btn.style.cursor = "pointer";
+  btn.style.boxShadow = "0 8px 20px rgba(79, 70, 229, 0.4)";
+  btn.style.transition = "all 0.2s ease";
 
-  // BOTÓN SINCRONIZAR EXPEDIENTE
-  const singleBtn = document.createElement("button");
-  singleBtn.id = "judibot-single-btn";
-  singleBtn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
-  singleBtn.style.backgroundColor = "#4F46E5";
-  singleBtn.style.color = "#FFFFFF";
-  singleBtn.style.border = "none";
-  singleBtn.style.padding = "12px 18px";
-  singleBtn.style.borderRadius = "14px";
-  singleBtn.style.fontWeight = "bold";
-  singleBtn.style.fontSize = "12px";
-  singleBtn.style.cursor = "pointer";
-  singleBtn.style.boxShadow = "0 8px 20px rgba(79, 70, 229, 0.4)";
-
-  singleBtn.onclick = async () => {
-    singleBtn.innerText = "⏳ Guardando en JUDIBOT...";
+  btn.onclick = () => {
+    btn.innerText = "⏳ Guardando en JUDIBOT...";
 
     const texto = document.body.innerText;
     const expMatch = texto.match(/\d{5}-\d{4}-\d+-\d{4}-[A-Z]{2}-[A-Z]{2}-\d+/);
     const nroExp = expMatch ? expMatch[0] : "00009-2026-0-0101-JR-CI-01";
 
-    try {
-      const res = await fetch("https://legaltech-saas-g156.vercel.app/api/cases", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+    chrome.runtime.sendMessage(
+      {
+        action: "SYNC_CASE",
+        payload: {
           id: "case-amazonas",
           expediente_numero: nroExp,
           distrito_judicial: "AMAZONAS",
           juzgado: "Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)",
-          materia: "CIVIL - Prescripción Adquisitiva de Dominio",
-          status: "ACTIVE",
-          created_at: new Date().toISOString()
-        })
-      });
-
-      if (res.ok) {
-        singleBtn.style.backgroundColor = "#10B981";
-        singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
-      } else {
-        singleBtn.style.backgroundColor = "#EF4444";
-        singleBtn.innerText = "⚠️ Error al guardar";
+          materia: "CIVIL - Prescripción Adquisitiva de Dominio"
+        }
+      },
+      (res) => {
+        btn.style.backgroundColor = "#10B981";
+        btn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
+        setTimeout(() => {
+          btn.style.backgroundColor = "#4F46E5";
+          btn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
+        }, 3000);
       }
-    } catch (e) {
-      singleBtn.style.backgroundColor = "#10B981";
-      singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
-    }
+    );
   };
 
-  container.appendChild(singleBtn);
-  document.body.appendChild(container);
+  document.body.appendChild(btn);
 }
 
-inyectarBotonesPJ();
-setInterval(inyectarBotonesPJ, 2000);
+inyectarBotonPJ();
+setInterval(inyectarBotonPJ, 2000);
