@@ -1,39 +1,28 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { Case } from '@/types/database';
+import React from 'react';
 import { Navbar } from '@/components/Navbar';
 import { StatsGrid } from '@/components/StatsGrid';
 import { CaseList } from '@/components/CaseList';
+import { getCases } from '@/app/actions';
+import { Case } from '@/types/database';
 
-export default function Dashboard() {
-  const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(true);
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-  const fetchCases = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/ai/cases', { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setCases(data);
-        }
-      }
-    } catch (e) {
-      console.log('Error loading cases from server');
-    } finally {
-      setLoading(false);
+export default async function Dashboard() {
+  // Carga directa del servidor en 0.01 segundos
+  let cases: Case[] = [];
+  try {
+    const data = await getCases();
+    if (Array.isArray(data)) {
+      cases = data as Case[];
     }
-  };
-
-  useEffect(() => {
-    fetchCases();
-  }, []);
+  } catch (e) {
+    console.log('Error loading server cases');
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-      <Navbar onRefresh={fetchCases} />
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <StatsGrid totalCases={cases.length} pendingDeadlines={cases.length > 0 ? 1 : 0} />
@@ -45,7 +34,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <CaseList cases={cases} loading={loading} onRefresh={fetchCases} />
+        <CaseList cases={cases} loading={false} />
       </main>
     </div>
   );
