@@ -5,19 +5,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetch(`${SERVER_URL}/api/cases`, {
       method: "POST",
       headers: {
-        "Accept": "application/json",
         "Content-Type": "application/json"
       },
       body: JSON.stringify(request.payload)
     })
-      .then((res) => res.json())
-      .then((data) => {
-        sendResponse({ success: true, data });
+      .then((res) => {
+        if (res.ok) {
+          sendResponse({ success: true });
+        } else {
+          sendResponse({ success: false, error: "HTTP " + res.status });
+        }
       })
       .catch((err) => {
         sendResponse({ success: false, error: err.message });
       });
 
-    return true;
+    return true; // Mantiene el canal de respuesta abierto
   }
 });

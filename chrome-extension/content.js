@@ -1,4 +1,4 @@
-console.log("JUDIBOT Extension: Conectada al Poder Judicial.");
+console.log("JUDIBOT Extension v1.2.5: Conectada al Poder Judicial.");
 
 function inyectarBotonesJUDIBOT() {
   if (document.getElementById("judibot-panel-actions")) return;
@@ -16,6 +16,7 @@ function inyectarBotonesJUDIBOT() {
 
   // BOTÓN 1: IMPORTACIÓN MASIVA
   const bulkBtn = document.createElement("button");
+  bulkBtn.id = "judibot-bulk-btn";
   bulkBtn.innerHTML = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
   bulkBtn.style.backgroundColor = "#059669";
   bulkBtn.style.color = "#FFFFFF";
@@ -50,14 +51,21 @@ function inyectarBotonesJUDIBOT() {
         }
       },
       (res) => {
-        bulkBtn.style.backgroundColor = "#10B981";
-        bulkBtn.innerText = "✅ ¡Carga SINOE Importada!";
+        if (res && res.success) {
+          bulkBtn.style.backgroundColor = "#10B981";
+          bulkBtn.innerText = "✅ ¡Carga SINOE Guardada!";
+          setTimeout(() => {
+            bulkBtn.style.backgroundColor = "#059669";
+            bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
+          }, 3500);
+        }
       }
     );
   };
 
   // BOTÓN 2: SINCRONIZAR ESTE EXPEDIENTE
   const singleBtn = document.createElement("button");
+  singleBtn.id = "judibot-single-btn";
   singleBtn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
   singleBtn.style.backgroundColor = "#4F46E5";
   singleBtn.style.color = "#FFFFFF";
@@ -80,15 +88,28 @@ function inyectarBotonesJUDIBOT() {
       {
         action: "SYNC_CASE",
         payload: {
-          expediente: nroExp,
-          distrito: "AMAZONAS",
+          expediente_numero: nroExp,
+          distrito_judicial: "AMAZONAS",
           juzgado: "Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)",
           materia: "CIVIL - Prescripción Adquisitiva de Dominio"
         }
       },
       (res) => {
-        singleBtn.style.backgroundColor = "#10B981";
-        singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
+        if (res && res.success) {
+          singleBtn.style.backgroundColor = "#10B981";
+          singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
+          setTimeout(() => {
+            singleBtn.style.backgroundColor = "#4F46E5";
+            singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
+          }, 3500);
+        } else {
+          singleBtn.style.backgroundColor = "#EF4444";
+          singleBtn.innerText = "⚠️ Error de respuesta";
+          setTimeout(() => {
+            singleBtn.style.backgroundColor = "#4F46E5";
+            singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
+          }, 3000);
+        }
       }
     );
   };
