@@ -8,29 +8,27 @@ import { CaseList } from '@/components/CaseList';
 
 export default function Dashboard() {
   const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const fetchCases = () => {
+  const fetchCases = async () => {
+    setLoading(true);
     try {
-      const saved = localStorage.getItem('judibot_cases');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setCases(parsed);
-          return;
+      const res = await fetch('/api/cases', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setCases(data);
         }
       }
     } catch (e) {
-      console.log('Storage empty');
+      console.log('Error fetching cases from server');
+    } finally {
+      setLoading(false);
     }
-    setCases([]);
   };
 
   useEffect(() => {
     fetchCases();
-    // Revisa si la extensión inyectó nuevos casos cada 1 segundo
-    const interval = setInterval(fetchCases, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
