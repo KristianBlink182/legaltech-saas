@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ajadytxhlshccpuwxtci.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_57yzoshk5CFnEWvMK9mlTQ_hSbLVLB';
+const supabaseUrl = 'https://ajadytxhlshccpuwxtci.supabase.co';
+const supabaseKey = 'sb_publishable_57yzoshk5CFnEWvMK9mlTQ_hSbLVLB';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -12,12 +12,11 @@ export async function OPTIONS() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Accept',
     },
   });
 }
 
-// 1. OBTENER CASOS DESDE SUPABASE
 export async function GET() {
   try {
     const { data, error } = await supabase
@@ -26,21 +25,24 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      return NextResponse.json([], { headers: { 'Access-Control-Allow-Origin': '*' } });
+      return NextResponse.json([], {
+        headers: { 'Access-Control-Allow-Origin': '*' }
+      });
     }
 
     return NextResponse.json(data || [], {
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-store, max-age=0',
-      },
+        'Cache-Control': 'no-store, max-age=0'
+      }
     });
-  } catch (err: any) {
-    return NextResponse.json([], { headers: { 'Access-Control-Allow-Origin': '*' } });
+  } catch (e: any) {
+    return NextResponse.json([], {
+      headers: { 'Access-Control-Allow-Origin': '*' }
+    });
   }
 }
 
-// 2. GUARDAR CASO DESDE LA EXTENSIÓN DIRECTO A SUPABASE
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -54,30 +56,29 @@ export async function POST(req: Request) {
           distrito_judicial: body.distrito || body.distrito_judicial || 'AMAZONAS',
           juzgado: body.juzgado || 'Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)',
           materia: body.materia || 'CIVIL - Prescripción Adquisitiva de Dominio',
-          status: 'ACTIVE',
-        },
+          status: 'ACTIVE'
+        }
       ])
       .select();
 
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, {
         status: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Access-Control-Allow-Origin': '*' }
       });
     }
 
     return NextResponse.json({ success: true, data }, {
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Access-Control-Allow-Origin': '*' }
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, {
       status: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Access-Control-Allow-Origin': '*' }
     });
   }
 }
 
-// 3. ELIMINAR CASO DE SUPABASE
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -88,12 +89,12 @@ export async function DELETE(req: Request) {
     }
 
     return NextResponse.json({ success: true }, {
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Access-Control-Allow-Origin': '*' }
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, {
       status: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Access-Control-Allow-Origin': '*' }
     });
   }
 }
