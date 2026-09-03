@@ -2,7 +2,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const SERVER_URL = "https://legaltech-saas-g156.vercel.app";
 
   if (request.action === "SYNC_CASE" || request.action === "SYNC_BULK") {
-    fetch(`${SERVER_URL}/api/cases`, {
+    fetch(`${SERVER_URL}/api/ai/cases`, {
       method: "POST",
       headers: {
         "Accept": "application/json",

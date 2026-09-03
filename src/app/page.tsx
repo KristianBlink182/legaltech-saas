@@ -11,21 +11,20 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   const fetchCases = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/cases', { cache: 'no-store' });
+      const res = await fetch('/api/ai/cases', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
           setCases(data);
-          setLoading(false);
-          return;
         }
       }
     } catch (e) {
-      console.log('Error fetching cases');
+      console.log('Error loading cases from server');
+    } finally {
+      setLoading(false);
     }
-    setCases([]);
-    setLoading(false);
   };
 
   useEffect(() => {

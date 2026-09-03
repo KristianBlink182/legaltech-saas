@@ -13,11 +13,11 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh })
   const router = useRouter();
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Evita abrir el detalle al hacer clic en el tacho
+    e.stopPropagation();
 
     if (confirm('¿Estás seguro de que deseas eliminar este expediente del monitoreo?')) {
       try {
-        await fetch(`/api/cases?id=${id}`, { method: 'DELETE' });
+        await fetch(`/api/ai/cases?id=${id}`, { method: 'DELETE' });
         if (onRefresh) onRefresh();
       } catch (err) {
         console.log('Error deleting case');
@@ -76,7 +76,6 @@ export const CaseList: React.FC<CaseListProps> = ({ cases, loading, onRefresh })
           </div>
 
           <div className="flex items-center gap-3 self-end md:self-center">
-            {/* Botón Tacho Rojo */}
             <button 
               onClick={(e) => handleDelete(e, item.id)}
               className="p-2.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 rounded-xl border border-transparent hover:border-rose-500/30 transition"
