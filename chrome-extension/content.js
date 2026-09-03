@@ -1,39 +1,25 @@
-console.log("JUDIBOT Extension v2.3.0: Puente Oficial Activo.");
+console.log("JUDIBOT Extension: Selector inteligente de portales activo.");
 
-// 1. SI ESTAMOS EN LA WEB DE JUDIBOT (VERCEL O LOCALHOST):
-// Pasa los casos guardados a la pantalla en silencio (SIN MOSTRAR BOTONES)
-if (window.location.hostname.includes("vercel.app") || window.location.hostname.includes("localhost")) {
-  if (chrome && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["judibot_saved_cases"], (res) => {
-      if (res && res.judibot_saved_cases && Array.isArray(res.judibot_saved_cases)) {
-        localStorage.setItem("judibot_cases", JSON.stringify(res.judibot_saved_cases));
-        window.dispatchEvent(new Event("storage"));
-      }
-    });
-  }
-}
+function inyectarBotonesContextuales() {
+  if (document.getElementById("judibot-panel-actions")) return;
 
-// 2. SI ESTAMOS EN EL PODER JUDICIAL (CEJ / SINOE):
-// Inyecta los dos botones abajo a la derecha
-if (window.location.hostname.includes("pj.gob.pe")) {
-  function inyectarBotonesPJ() {
-    if (document.getElementById("judibot-panel-actions")) return;
+  const urlActual = window.location.href;
+  const container = document.createElement("div");
+  container.id = "judibot-panel-actions";
+  container.style.position = "fixed";
+  container.style.bottom = "24px";
+  container.style.right = "24px";
+  container.style.zIndex = "999999";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "10px";
+  container.style.alignItems = "flex-end";
 
-    const container = document.createElement("div");
-    container.id = "judibot-panel-actions";
-    container.style.position = "fixed";
-    container.style.bottom = "24px";
-    container.style.right = "24px";
-    container.style.zIndex = "999999";
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
-    container.style.gap = "10px";
-    container.style.alignItems = "flex-end";
-
-    // BOTÓN 1 (VERDE): IMPORTACIÓN MASIVA
+  // CASO A: SI ESTÁ EN LA CASILLA ELECTRÓNICA SINOE -> MOSTRAR BOTÓN VERDE MASIVO
+  if (urlActual.includes("casillas.pj.gob.pe") || urlActual.includes("sinoe")) {
     const bulkBtn = document.createElement("button");
     bulkBtn.id = "judibot-bulk-btn";
-    bulkBtn.innerHTML = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
+    bulkBtn.innerHTML = "📥 Importar Carga Masiva SINOE a JUDIBOT";
     bulkBtn.style.backgroundColor = "#059669";
     bulkBtn.style.color = "#FFFFFF";
     bulkBtn.style.border = "none";
@@ -54,31 +40,20 @@ if (window.location.hostname.includes("pj.gob.pe")) {
           materia: "CIVIL - Prescripción Adquisitiva de Dominio",
           status: "ACTIVE",
           created_at: new Date().toISOString()
-        },
-        {
-          id: "case-lima",
-          expediente_numero: "00420-2024-0-1801-JR-CI-05",
-          distrito_judicial: "LIMA",
-          juzgado: "5° Juzgado Especializado en lo Civil - Lima",
-          materia: "CIVIL - Obligación de Dar Suma de Dinero",
-          status: "ACTIVE",
-          created_at: new Date().toISOString()
         }
       ];
 
-      if (chrome && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ judibot_saved_cases: listaCasos }, () => {
-          bulkBtn.style.backgroundColor = "#10B981";
-          bulkBtn.innerText = "✅ ¡Carga SINOE Guardada!";
-          setTimeout(() => {
-            bulkBtn.style.backgroundColor = "#059669";
-            bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
-          }, 3500);
-        });
-      }
+      chrome.storage.local.set({ judibot_saved_cases: listaCasos }, () => {
+        bulkBtn.style.backgroundColor = "#10B981";
+        bulkBtn.innerText = "✅ ¡Carga SINOE Guardada en JUDIBOT!";
+      });
     };
 
-    // BOTÓN 2 (MORADO): SINCRONIZAR ESTE EXPEDIENTE
+    container.appendChild(bulkBtn);
+  }
+
+  // CASO B: SI ESTÁ EN EL CEJ (CONSULTA INDIVIDUAL) -> MOSTRAR SOLO BOTÓN MORADO
+  if (urlActual.includes("cej.pj.gob.pe")) {
     const singleBtn = document.createElement("button");
     singleBtn.id = "judibot-single-btn";
     singleBtn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
@@ -107,29 +82,23 @@ if (window.location.hostname.includes("pj.gob.pe")) {
         created_at: new Date().toISOString()
       };
 
-      if (chrome && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.get(["judibot_saved_cases"], (res) => {
-          let actuales = res.judibot_saved_cases || [];
-          actuales = actuales.filter((c) => c.expediente_numero !== nroExp);
-          actuales.unshift(casoReal);
+      chrome.storage.local.get(["judibot_saved_cases"], (res) => {
+        let actuales = res.judibot_saved_cases || [];
+        actuales = actuales.filter((c) => c.expediente_numero !== nroExp);
+        actuales.unshift(casoReal);
 
-          chrome.storage.local.set({ judibot_saved_cases: actuales }, () => {
-            singleBtn.style.backgroundColor = "#10B981";
-            singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
-            setTimeout(() => {
-              singleBtn.style.backgroundColor = "#4F46E5";
-              singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
-            }, 3500);
-          });
+        chrome.storage.local.set({ judibot_saved_cases: actuales }, () => {
+          singleBtn.style.backgroundColor = "#10B981";
+          singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
         });
-      }
+      });
     };
 
-    container.appendChild(bulkBtn);
     container.appendChild(singleBtn);
-    document.body.appendChild(container);
   }
 
-  inyectarBotonesPJ();
-  setInterval(inyectarBotonesPJ, 2000);
+  document.body.appendChild(container);
 }
+
+inyectarBotonesContextuales();
+setInterval(inyectarBotonesContextuales, 2000);
