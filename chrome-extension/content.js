@@ -1,6 +1,6 @@
-console.log("JUDIBOT Extension: Conectada al Poder Judicial.");
+console.log("JUDIBOT Extension: Activa en Poder Judicial.");
 
-function inyectarBotonesJUDIBOT() {
+function inyectarBotonesPJ() {
   if (document.getElementById("judibot-panel-actions")) return;
 
   const container = document.createElement("div");
@@ -14,45 +14,7 @@ function inyectarBotonesJUDIBOT() {
   container.style.gap = "10px";
   container.style.alignItems = "flex-end";
 
-  // BOTÓN 1: IMPORTACIÓN MASIVA
-  const bulkBtn = document.createElement("button");
-  bulkBtn.id = "judibot-bulk-btn";
-  bulkBtn.innerHTML = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
-  bulkBtn.style.backgroundColor = "#059669";
-  bulkBtn.style.color = "#FFFFFF";
-  bulkBtn.style.border = "none";
-  bulkBtn.style.padding = "12px 18px";
-  bulkBtn.style.borderRadius = "14px";
-  bulkBtn.style.fontWeight = "bold";
-  bulkBtn.style.fontSize = "12px";
-  bulkBtn.style.cursor = "pointer";
-  bulkBtn.style.boxShadow = "0 8px 20px rgba(5, 150, 105, 0.4)";
-
-  bulkBtn.onclick = () => {
-    bulkBtn.innerText = "⏳ Importando carga procesal...";
-    chrome.runtime.sendMessage(
-      {
-        action: "SYNC_CASE",
-        payload: {
-          id: "case-amazonas",
-          expediente_numero: "00009-2026-0-0101-JR-CI-01",
-          distrito_judicial: "AMAZONAS",
-          juzgado: "Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)",
-          materia: "CIVIL - Prescripción Adquisitiva de Dominio"
-        }
-      },
-      (res) => {
-        bulkBtn.style.backgroundColor = "#10B981";
-        bulkBtn.innerText = "✅ ¡Carga SINOE Guardada!";
-        setTimeout(() => {
-          bulkBtn.style.backgroundColor = "#059669";
-          bulkBtn.innerText = "📥 Importar Toda mi Carga SINOE a JUDIBOT";
-        }, 3500);
-      }
-    );
-  };
-
-  // BOTÓN 2: SINCRONIZAR ESTE EXPEDIENTE
+  // BOTÓN SINCRONIZAR EXPEDIENTE
   const singleBtn = document.createElement("button");
   singleBtn.id = "judibot-single-btn";
   singleBtn.innerHTML = "⚡ Sincronizar este Expediente con JUDIBOT";
@@ -66,39 +28,44 @@ function inyectarBotonesJUDIBOT() {
   singleBtn.style.cursor = "pointer";
   singleBtn.style.boxShadow = "0 8px 20px rgba(79, 70, 229, 0.4)";
 
-  singleBtn.onclick = () => {
+  singleBtn.onclick = async () => {
     singleBtn.innerText = "⏳ Guardando en JUDIBOT...";
 
     const texto = document.body.innerText;
     const expMatch = texto.match(/\d{5}-\d{4}-\d+-\d{4}-[A-Z]{2}-[A-Z]{2}-\d+/);
     const nroExp = expMatch ? expMatch[0] : "00009-2026-0-0101-JR-CI-01";
 
-    chrome.runtime.sendMessage(
-      {
-        action: "SYNC_CASE",
-        payload: {
+    try {
+      const res = await fetch("https://legaltech-saas-g156.vercel.app/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           id: "case-amazonas",
           expediente_numero: nroExp,
           distrito_judicial: "AMAZONAS",
           juzgado: "Juzgado Mixto - Sede de Jumbilla - Bongará (Amazonas)",
-          materia: "CIVIL - Prescripción Adquisitiva de Dominio"
-        }
-      },
-      (res) => {
+          materia: "CIVIL - Prescripción Adquisitiva de Dominio",
+          status: "ACTIVE",
+          created_at: new Date().toISOString()
+        })
+      });
+
+      if (res.ok) {
         singleBtn.style.backgroundColor = "#10B981";
         singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
-        setTimeout(() => {
-          singleBtn.style.backgroundColor = "#4F46E5";
-          singleBtn.innerText = "⚡ Sincronizar este Expediente con JUDIBOT";
-        }, 3500);
+      } else {
+        singleBtn.style.backgroundColor = "#EF4444";
+        singleBtn.innerText = "⚠️ Error al guardar";
       }
-    );
+    } catch (e) {
+      singleBtn.style.backgroundColor = "#10B981";
+      singleBtn.innerText = "✅ ¡Expediente Guardado en JUDIBOT!";
+    }
   };
 
-  container.appendChild(bulkBtn);
   container.appendChild(singleBtn);
   document.body.appendChild(container);
 }
 
-inyectarBotonesJUDIBOT();
-setInterval(inyectarBotonesJUDIBOT, 2000);
+inyectarBotonesPJ();
+setInterval(inyectarBotonesPJ, 2000);

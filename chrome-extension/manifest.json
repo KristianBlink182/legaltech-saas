@@ -1,22 +1,18 @@
 {
   "manifest_version": 3,
   "name": "JUDIBOT - Monitoreo Judicial CEJ & SINOE",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Importa expedientes del Poder Judicial y Casilla SINOE a JUDIBOT con 1 solo clic.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "https://cej.pj.gob.pe/*",
-    "https://casillas.pj.gob.pe/*",
-    "https://legaltech-saas-g156.vercel.app/*",
-    "http://localhost:3000/*"
+    "https://casillas.pj.gob.pe/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://cej.pj.gob.pe/*",
-        "https://casillas.pj.gob.pe/*",
-        "https://legaltech-saas-g156.vercel.app/*",
-        "http://localhost:3000/*"
+        "https://casillas.pj.gob.pe/*"
       ],
       "js": ["content.js"]
     }
