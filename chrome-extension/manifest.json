@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JUDIBOT - Monitoreo Judicial CEJ & SINOE",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "description": "Importa expedientes del Poder Judicial y Casilla SINOE a JUDIBOT con 1 solo clic.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
