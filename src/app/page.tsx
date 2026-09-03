@@ -21,7 +21,7 @@ export default function Dashboard() {
         }
       }
     } catch (e) {
-      console.log('Error loading cases');
+      console.log('Error loading cases from server');
     } finally {
       setLoading(false);
     }
